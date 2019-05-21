@@ -1,9 +1,10 @@
-//const consts = process.env.NODE_ENV === "production" ? null : require('./dev-env');
+const consts = process.env.NODE_ENV === "production" ? null : require('./dev-env');
 const express = require('express');
-//const passport = require('passport');
-//const session = require('express-session')
-//const MongoStore = require('connect-mongo')(session);
-//const dbConnection= require('./db.js')
+const cleanCtl = require("../controllers/clean.ctl");
+const passport = require('passport');
+const session = require('express-session')
+const MongoStore = require('connect-mongo')(session);
+const dbConnection= require('./db.js')
 //const passportInit = require('./security/passport.init')
 //const gardenCtl = require('./controllers/garden.ctl');
 const app = express();
@@ -22,10 +23,53 @@ app.use(
     next();
   });
 
+
+/*** All routes ***/
+//
+// // Task routes
+// app.get('/getAllEvents', gardenCtl.getAllEvents);
+app.get('/getAllCleaners', cleanCtl.getAllCleaners);
+
+app.post('/login',cleanCtl.login)
+
+app.post('/findMatchingCleaners',cleanCtl.findMatchingCleaners)
+app.post('/findEventsByCleanerEmail', cleanCtl.findEventsByCleanerEmail);
+app.post('/findEventsByUserEmail', cleanCtl.findEventsByUserEmail);
+// app.get('/findTaskById/:id', gardenCtl.findTaskById);                           //id string must be sent id=""
+// app.get('/findAvailableTasks/:score', gardenCtl.findAvailableTasks);            //expects integer
+// app.post('/addNewTask', gardenCtl.addNewTask);                                  //json must be sent with all new task data
+// app.post('/updateTask', gardenCtl.updateTask);                                  //json must be sent with an update data  id="" must
+// app.post('/deleteTask', gardenCtl.deleteTask);                                  //id string must be sent id=""
+//
+// // Users Tasks routes
+// app.post('/AssignTaskToUser', gardenCtl.AssignTaskToUser);                      // Expects in body task_id="" user_id=""
+// app.post('/RemoveTaskFromUser', gardenCtl.RemoveTaskFromUser);                  // Expects in body task_id="" user_id=""
+// app.post('/submitCompletion', gardenCtl.submitCompletion);                      // Expects in body task_id="" user_id=""
+// app.get('/getLevelAvailableTasks/:id', gardenCtl.getLevelAvailableTasks);
+// app.get('/getUserEvents/:id', gardenCtl.getUserEvents);
+// app.get('/getCurrentTasksForUser/:id', gardenCtl.getCurrentTasksForUser);
+//
+// User routes
+// app.post('/createEvent', gardenCtl.createEvent);                         //createEvent
+// app.post('/register', gardenCtl.registerUser);                        //id string must be sent email=""
+// app.post('/register', gardenCtl.registerCleaner);                        //id string must be sent email=""
+// app.post('/findUserByEmail', gardenCtl.findUserByEmail);                        //id string must be sent email=""
+app.post('/getUserByEmail', cleanCtl.getUserByEmail);                                //email string must be sent
+app.post('/getCleanerByEmail', cleanCtl.getCleanerByEmail);                                //email string must be sent
+// app.post('/updateUser', gardenCtl.updateUser);                                  //json must be sent with an update data  id="" must
+
+
+
+
 app.get('/', (req,res) => {
   console.log("time");
   return res.json({ "date": new Date() })
 });
 
 
-server.listen(port, () => console.log(`listening on port ${port}`));
+server.listen(port, () => {
+    require('dns').lookup(require('os').hostname(), function (err, add, fam) {
+        console.log('addr: '+add);
+    })
+    console.log(`listening on port ${port}`)
+});

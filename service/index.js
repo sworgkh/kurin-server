@@ -1,2 +1,2 @@
-//require('./db');
+require('./db');
 require('./server');
