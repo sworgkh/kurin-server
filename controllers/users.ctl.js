@@ -5,34 +5,34 @@ const User = require('../schemas/users');
 var _this = this;
 var request = require('request');
 
-exports.getAllUsers = (req, res) => {
-    User.find({})
-        .then(docs => {
-            console.log(docs);
-            return res.json(docs);
-        })
-        .catch(err => console.log(`query error: ${err}`))
-};
+// exports.getAllUsers = (req, res) => {
+//     User.find({})
+//         .then(docs => {
+//             console.log(docs);
+//             return res.json(docs);
+//         })
+//         .catch(err => console.log(`query error: ${err}`))
+// };
 
-exports.registerUser  = (req, res) => {
-    User.find({})
-        .then(docs => {
-            console.log(docs);
-            return res.json(docs);
-        })
-        .catch(err => console.log(`query error: ${err}`))
-};
+// exports.registerUser  = (req, res) => {
+//     User.find({})
+//         .then(docs => {
+//             console.log(docs);
+//             return res.json(docs);
+//         })
+//         .catch(err => console.log(`query error: ${err}`))
+// };
 
-
-exports.findUserByEmail = (req, res) => {
-    let { email = null } = req.body;
-    User.find({ user_email: { $eq: email } })
-        .then(docs => {
-            console.log(docs);
-            return res.json(docs);
-        })
-        .catch(err => console.log(`query error: ${err}`))
-};
+//
+// exports.findUserByEmail = (req, res) => {
+//     let { email = null } = req.body;
+//     User.find({ user_email: { $eq: email } })
+//         .then(docs => {
+//             console.log(docs);
+//             return res.json(docs);
+//         })
+//         .catch(err => console.log(`query error: ${err}`))
+// };
 
 
 exports.updateUser = (req, res) => {

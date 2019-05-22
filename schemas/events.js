@@ -1,6 +1,6 @@
 let mongoose = require('mongoose');
 
-const task_schema = new mongoose.Schema({
+const event_schema = new mongoose.Schema({
     eventUser: String,
     sizeOfTheAppt: String,
     floor: Number,
@@ -10,9 +10,13 @@ const task_schema = new mongoose.Schema({
     status: String,
     rating: Number,
     date: String,
-    notesByCleaner:String
+    address:String,
+    notesByCleaner:String,
+    cleanFloor:Boolean,
+    cleanBathroom:Boolean,
+    cleanWindows:Boolean,
 });
 
 //model
-const Events = mongoose.model('events',task_schema);
+const Events = mongoose.model('events',event_schema);
 module.exports = Events;

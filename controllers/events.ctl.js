@@ -38,6 +38,8 @@ exports.findTasksByCleanerEmail = (req, res) => {
 
 
 exports.addNewTask = (req, res) => {
+    let date =  new Date()
+    console.log(date)
     // if (functions.validateUser(req.body.my_email)) { //check if user is the admin
     if (true) { //check if user is the admin
         let taksDynamic = new Task({

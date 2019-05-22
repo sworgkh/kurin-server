@@ -35,6 +35,10 @@ app.post('/login',cleanCtl.login)
 app.post('/findMatchingCleaners',cleanCtl.findMatchingCleaners)
 app.post('/findEventsByCleanerEmail', cleanCtl.findEventsByCleanerEmail);
 app.post('/findEventsByUserEmail', cleanCtl.findEventsByUserEmail);
+app.post('/addToStarred', cleanCtl.addToStarred);
+app.post('/removeFromStarred', cleanCtl.removeFromStarred);
+app.post('/deleteEvent', cleanCtl.deleteEvent);
+app.post('/addNewEvent', cleanCtl.addNewEvent);
 // app.get('/findTaskById/:id', gardenCtl.findTaskById);                           //id string must be sent id=""
 // app.get('/findAvailableTasks/:score', gardenCtl.findAvailableTasks);            //expects integer
 // app.post('/addNewTask', gardenCtl.addNewTask);                                  //json must be sent with all new task data
@@ -56,12 +60,12 @@ app.post('/findEventsByUserEmail', cleanCtl.findEventsByUserEmail);
 // app.post('/findUserByEmail', gardenCtl.findUserByEmail);                        //id string must be sent email=""
 app.post('/getUserByEmail', cleanCtl.getUserByEmail);                                //email string must be sent
 app.post('/getCleanerByEmail', cleanCtl.getCleanerByEmail);                                //email string must be sent
-// app.post('/updateUser', gardenCtl.updateUser);                                  //json must be sent with an update data  id="" must
+app.post('/updateUser', cleanCtl.updateUser);                                  //json must be sent with an update data  id="" must
 
 
 
 
-app.get('/', (req,res) => {
+app.get('/time', (req,res) => {
   console.log("time");
   return res.json({ "date": new Date() })
 });

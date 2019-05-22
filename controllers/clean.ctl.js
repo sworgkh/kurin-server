@@ -15,7 +15,6 @@ function sha1( data ) {
 
 
 exports.login = (req,res) => {
-    console.log(req.body)
     let {email = null} = req.body;
     let {password = null} = req.body;
     User.find({
@@ -35,7 +34,6 @@ exports.login = (req,res) => {
             console.log(`query error: ${err}`);
             return res.json(`query error: ${err}`);
         });
-
 }
 
 exports.findMatchingCleaners = (req,res) => {
@@ -111,136 +109,234 @@ exports.findEventsByCleanerEmail = (req, res) => {
 };
 
 exports.addNewEvent = (req, res) => {
-    // if (functions.validateUser(req.body.my_email)) { //check if user is the admin
-    if (true) { //check if user is the admin
-        let Event = new Event({
-            eventUser: req.body.eventUser,
-            sizeOfTheAppt:  req.body.sizeOfTheAppt,
-            floor:  req.body.floor,
-            time:  req.body.time,
-            eventCleaner:  req.body.eventCleaner,
-            status: req.body.status,
-            rating:  req.body.rating,
-            date:  req.body.date,
-            notesByCleaner: req.body.notesByCleaner
-        });
-        // save model to database
-        Event.save(function(err, Event) {
-            if (err) return console.error(err);
-            console.log(Event.eventUser + " saved to tasks collection.");
-        });
-        return res.json("New task: " + Event.eventUser + " saved to tasks collection and tweet posted.")
-    } else {
-        res.json("Only Administrator can add tasks!")
+    let date1 =  new Date()
+    let date = date1.toISOString().slice(0, 10);
+    let time = date1.toISOString().slice(11, 16);
+    console.log(req)
+
+    let userData = {
+        eventUser: req.body.eventUser,
+        sizeOfTheAppt:  req.body.sizeOfTheAppt,
+        floor:  req.body.floor,
+        time: time,
+        eventCleaner:  req.body.eventCleaner,
+        status: 'Requested',
+        rating: 0,
+        date:  date,
+        address:req.body.address,
+        cleanFloor: req.body.cleanFloor,
+        cleanBathroom:req.body.cleanBathroom,
+        cleanWindows:req.body.cleanWindows,
+        notesByCleaner: ''
     }
+
+    Event.create(userData, (error, user) => {
+        if (error) {
+            return res.json(error);
+        } else {
+            return res.json('Created');
+        }
+    });
+
+
+        // var Event = new Event({
+        //     eventUser: req.body.eventUser,
+        //     sizeOfTheAppt:  req.body.sizeOfTheAppt,
+        //     floor:  req.body.floor,
+        //     time: time,
+        //     eventCleaner:  req.body.eventCleaner,
+        //     status: 'Requested',
+        //     rating: 0,
+        //     date:  date,
+        //     address:req.body.address,
+        //     cleanFloor: req.body.cleanFloor,
+        //     cleanBathroom:req.body.cleanBathroom,
+        //     cleanWindows:req.body.cleanWindows,
+        //     notesByCleaner: ''
+        // });
+        // // save model to database
+        // Event.save(function(err, Event) {
+        //     if (err) return console.error(err);
+        //     console.log(Event.eventUser + " saved to tasks collection.");
+        // });
+        // return res.json("New task: " + Event.eventUser + " saved to tasks collection and tweet posted.")
 };
 
-// exports.updateTask = (req, res) => {
-//     // console.log(req);
-//     let { id = null } = req.body;
-//
-//     let uId = mongoose.Types.ObjectId(id);
-//     Task.findOne({ _id: { $eq: uId } }, function(err, task) {
-//         if(err || task === null)
-//             return;
-//
-//         if (task.task_name !== req.body.task_name && req.body.task_name !== undefined) {
-//             task.task_name = req.body.task_name;
-//             task.markModified(task.task_name)
-//         }
-//         if (task.task_users !== req.body.task_users && req.body.task_users !== undefined) {
-//             // console.log(req.body.task_users);
-//             task.task_users = req.body.task_users.slice();
-//             task.markModified(task.task_users)
-//         }
-//         if (task.is_vip !== req.body.is_vip && req.body.is_vip !== undefined) {
-//             task.is_vip = req.body.is_vip;
-//             task.markModified(task.is_vip)
-//         }
-//         if (task.description !== req.body.description && req.body.description !== undefined) {
-//             task.description = req.body.description;
-//             task.markModified(task.description)
-//         }
-//         if (task.users_submitted_completion !== req.body.users_submitted_completion && req.body.users_submitted_completion !== undefined) {
-//             // console.log(req.body.users_submitted_completion);
-//             task.users_submitted_completion = req.body.users_submitted_completion.slice();
-//             task.markModified(task.users_submitted_completion)
-//         }
-//
-//         if (task.task_level !== req.body.task_level && req.body.task_level !== undefined) {
-//             task.task_level = parseInt(req.body.task_level);
-//             task.markModified(task.task_level)
-//         }
-//         if (task.task_value_points !== req.body.task_value_points && req.body.task_value_points !== undefined) {
-//             task.task_value_points = parseInt(req.body.task_value_points);
-//             task.markModified(task.task_value_points)
-//         }
-//
-//         task.save(function(err) {
-//             if (err) {
-//                 if (res.headersSent) return;
-//                 else  return res.json(`ERROR! saving task failed ${err}`);
-//             } else {
-//                 if (res.headersSent) return;
-//                 else  return res.json(`Update Successful`);
-//             }
-//         });
-//     });
-// };
-//
-// exports.updateUser = (req, res) => {
-//     let { id = null } = req.body;
-//     // let { tasks_in_progress = null } = req.body;
-//     let uId = mongoose.Types.ObjectId(id);
-//     User.findOne({ _id: { $eq: uId } }, function(err, user) {
-//
-//         if (user.user_name !== req.body.user_name && req.body.user_name !== undefined) {
-//             user.user_name = req.body.user_name;
-//             user.markModified(user.user_name)
-//         }
-//         if (user.tasks_completed !== req.body.tasks_completed && req.body.tasks_completed !== undefined) {
-//             user.tasks_completed = req.body.tasks_completed.slice();
-//             user.markModified(user.tasks_completed)
-//         }
-//         if (user.admin !== req.body.admin && req.body.admin !== undefined) {
-//             user.admin = req.body.admin;
-//             user.markModified(user.admin)
-//         }
-//         if (user.tasks_in_progress !== req.body.tasks_in_progress && req.body.tasks_in_progress !== undefined) {
-//             // console.log(req.body.tasks_in_progress);
-//             user.tasks_in_progress = req.body.tasks_in_progress.slice();
-//             user.markModified(user.tasks_in_progress)
-//         }
-//
-//         if (user.user_points !== req.body.user_points && req.body.user_points !== undefined) {
-//             user.user_points = parseInt(req.body.user_points);
-//             user.markModified(user.user_points)
-//         }
-//         if (user.user_email !== req.body.user_email && req.body.user_email !== undefined) {
-//             user.user_email = parseInt(req.body.user_email);
-//             user.markModified(user.user_email)
-//         }
-//
-//         if (user.user_level !== req.body.user_level && req.body.user_level !== undefined) {
-//             user.user_level = parseInt(req.body.user_level);
-//             user.markModified(user.user_level)
-//         }
-//         if (user.join_date !== req.body.join_date && req.body.join_date !== undefined) {
-//             user.join_date = parseInt(req.body.join_date);
-//             user.markModified(user.join_date)
-//         }
-//
-//         user.save(function(err) {
-//             if (err) {
-//                 if (res.headersSent) return;
-//                 else  return res.json(`ERROR! saving user failed ${err}`);
-//             } else {
-//                 if (res.headersSent) return;
-//                 else  return res.json(`Update Successful`);
-//             }
-//         });
-//     });
-// };
+exports.addToStarred = (req, res) => {
+    let {userEmail = null} = req.body;
+    let {cleanerEmail = null} = req.body;
+
+    User.findOne({email: {$eq: userEmail}}, function (err, user) {
+        if (err || !user) {
+            if (res.headersSent) return;
+            else return res.json("Task already assigned to User");
+        }
+        let favorite_cleaners = user.favorite_cleaners;
+        if (favorite_cleaners.includes(cleanerEmail)) {
+            if (res.headersSent) return;
+            else return res.json("Task already assigned to User");
+        }
+
+        favorite_cleaners.push(cleanerEmail);
+        user.favorite_cleaners = favorite_cleaners
+        user.save(function (err) {
+            if(err) {
+                console.error('ERROR!');
+            }
+        });
+
+
+        // let neg,        w_req = ({
+        //     body: {
+        //         email: userEmail,
+        //         favorite_cleaners: favorite_cleaners
+        //     }
+        // });
+        // _this.updateUser(new_req, res);
+        if (res.headersSent) return;
+        else return res.json({success: true});
+    });
+
+}
+
+exports.removeFromStarred = (req, res) => {
+
+
+    console.log(req.body)
+    let {userEmail = null} = req.body;
+    let {cleanerEmail = null} = req.body;
+
+
+    User.findOne({email: {$eq: userEmail}}, function (err, user) {
+        if (err || !user) {
+            if (res.headersSent) return;
+            else return res.json("Task already assigned to User");
+        }
+        let favorite_cleaners = user.favorite_cleaners;
+        if (favorite_cleaners.includes(cleanerEmail)) {
+            favorite_cleaners.remove(cleanerEmail);
+        }
+        user.favorite_cleaners = favorite_cleaners
+        user.save(function (err) {
+            if(err) {
+                console.error('ERROR!');
+            }
+        });
+        if (res.headersSent) return;
+        else return res.json({success: true});
+    });
+
+}
+
+exports.updateEvent = (req, res) => {
+    // console.log(req);
+    let { id = null } = req.body;
+
+    let uId = mongoose.Types.ObjectId(id);
+    Event.findOne({ _id: { $eq: uId } }, function(err, task) {
+        if(err || task === null)
+            return;
+
+        if (task.task_name !== req.body.task_name && req.body.task_name !== undefined) {
+            task.task_name = req.body.task_name;
+            task.markModified(task.task_name)
+        }
+        if (task.task_users !== req.body.task_users && req.body.task_users !== undefined) {
+            // console.log(req.body.task_users);
+            task.task_users = req.body.task_users.slice();
+            task.markModified(task.task_users)
+        }
+        if (task.is_vip !== req.body.is_vip && req.body.is_vip !== undefined) {
+            task.is_vip = req.body.is_vip;
+            task.markModified(task.is_vip)
+        }
+        if (task.description !== req.body.description && req.body.description !== undefined) {
+            task.description = req.body.description;
+            task.markModified(task.description)
+        }
+        if (task.users_submitted_completion !== req.body.users_submitted_completion && req.body.users_submitted_completion !== undefined) {
+            // console.log(req.body.users_submitted_completion);
+            task.users_submitted_completion = req.body.users_submitted_completion.slice();
+            task.markModified(task.users_submitted_completion)
+        }
+
+        if (task.task_level !== req.body.task_level && req.body.task_level !== undefined) {
+            task.task_level = parseInt(req.body.task_level);
+            task.markModified(task.task_level)
+        }
+        if (task.task_value_points !== req.body.task_value_points && req.body.task_value_points !== undefined) {
+            task.task_value_points = parseInt(req.body.task_value_points);
+            task.markModified(task.task_value_points)
+        }
+
+        task.save(function(err) {
+            if (err) {
+                if (res.headersSent) return;
+                else  return res.json(`ERROR! saving task failed ${err}`);
+            } else {
+                if (res.headersSent) return;
+                else  return res.json(`Update Successful`);
+            }
+        });
+    });
+};
+
+exports.updateUser = (req, res) => {
+    let { email = null } = req.body;
+
+
+    // User.update({email: email}, {
+    //     username: newUser.username,
+    //
+    // }, function(err, numberAffected, rawResponse) {
+    //     //handle it
+    // })
+
+    // let { tasks_in_progress = null } = req.body;
+    User.findOne({ email: { $eq: email } }, function(err, user) {
+
+        if (user.name !== req.body.name && req.body.name !== undefined) {
+            user.name = req.body.name;
+            user.markModified(user.name)
+        }
+        if (user.email !== req.body.email && req.body.email !== undefined) {
+            user.email = req.body.email;
+            user.markModified(user.email)
+        }
+        if (user.favorite_cleaners !== req.body.favorite_cleaners && req.body.favorite_cleaners !== undefined) {
+
+            if(user.favorite_cleaners.length === 0)
+                user.favorite_cleaners = []
+            else
+                user.favorite_cleaners = req.body.favorite_cleaners.slice();
+            user.markModified(user.favorite_cleaners)
+        }
+
+        if (user.events !== req.body.events && req.body.events !== undefined) {
+            user.events = req.body.events.slice();
+            user.markModified(user.events)
+        }
+        if (user.rating !== req.body.rating && req.body.rating !== undefined) {
+            user.rating = parseInt(req.body.rating);
+            user.markModified(user.rating)
+        }
+
+        if (user.cleaner !== req.body.cleaner && req.body.cleaner !== undefined) {
+            user.cleaner = parseInt(req.body.cleaner);
+            user.markModified(user.cleaner)
+        }
+
+        user.save(function(err) {
+            if (err) {
+                if (res.headersSent) return;
+                else  return res.json(`ERROR! saving user failed ${err}`);
+            } else {
+                if (res.headersSent) return;
+                else  return res.json(`Update Successful`);
+            }
+        });
+    });
+};
 //
 //
 //
@@ -275,63 +371,20 @@ exports.getCleanerByEmail = (req, res) => {
 
 //
 //
-// exports.deleteTask = (req, res) => {
-//     let { id = null } = req.body;
-//     let uId = null;
-//     try {
-//
-//         uId = mongoose.Types.ObjectId(id)
-//
-//     } catch (err) {
-//
-//         res.json(err);
-//         if (res.headersSent) return;
-//         else  return res.json(`ERROR! ${err}`);
-//     }
-//     Task.findByIdAndRemove({ _id: uId }, function(err, doc) {
-//         if(err || !doc) {
-//             res.json(console.log(`query error: ${err}`));
-//         }
-//         else {
-//             res.json("Deleted task with id: " + id);
-//         }
-//     });
-//
-// };
-// exports.AssignTaskToUser = (req, res) => {
-//     let new_req_task = ({
-//         id: req.body.task_id,
-//
-//     });
-//
-//     let uId = mongoose.Types.ObjectId(new_req_task.id);
-//     Task.findOne({ _id : { $eq: uId } }, function(err, task) {
-//         if(err || !task){
-//             if (res.headersSent) return;
-//             else  return res.json("Task already assigned to User");
-//         }
-//         let new_arr_mission = task.task_users;
-//         if(new_arr_mission.includes(req.body.user_id)){
-//             if (res.headersSent) return;
-//             else  return res.json("Task already assigned to User");
-//         }
-//
-//         new_arr_mission.push(req.body.user_id);
-//         let new_req = ({
-//             body: {
-//                 id: req.body.task_id,
-//                 task_users: new_arr_mission
-//             }
-//         });
-//         _this.updateTask(new_req, res);
-//         if (res.headersSent) return;
-//         else return res.json({success:true});
-//     });
-//
-//     let new_req_user = ({
-//         id: req.body.user_id,
-//
-//     });
+exports.deleteEvent = (req, res) => {
+    console.log(req.body)
+    let { id = null } = req.body;
+    let uId = mongoose.Types.ObjectId(id);
+    Event.findByIdAndRemove({ _id: uId }, function(err, doc) {
+        if(err || !doc) {
+            res.json(console.log(`query error: ${err}`));
+        }
+        else {
+            res.json("Deleted task with id: " + id);
+        }
+    });
+};
+
 //
 //     uId = mongoose.Types.ObjectId(new_req_user.id);
 //     User.findOne({ _id : { $eq: uId } }, function(err, user) {
