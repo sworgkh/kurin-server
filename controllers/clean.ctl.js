@@ -120,6 +120,7 @@ exports.addNewEvent = (req, res) => {
         floor:  req.body.floor,
         time: time,
         eventCleaner:  req.body.eventCleaner,
+        eventCleanerName:req.body.eventCleanerName,
         status: 'Requested',
         rating: 0,
         date:  date,
