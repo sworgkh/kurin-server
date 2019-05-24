@@ -4,8 +4,11 @@ const Cleaner = require('../schemas/cleaners');
 const Event = require('../schemas/events');
 const User = require('../schemas/users');
 var _this = this;
+const server = require("../service/server");
 var request = require('request');
 var crypto = require('crypto');
+var connectedUsers =
+
 
 function sha1( data ) {
     let generator = crypto.createHash('sha1');
@@ -18,8 +21,8 @@ exports.login = (req,res) => {
     let {email = null} = req.body;
     let {password = null} = req.body;
     User.find({
-        email: {$eq: email},
-        password: {$eq: password},
+            email: {$eq: email},
+            password: {$eq: password},
         }
     )
         .then(docs => {
@@ -48,8 +51,8 @@ exports.findMatchingCleaners = (req,res) => {
             bathroom: {$eq: bathroom},
             windows: {$eq: windows},
             floor: {$eq: floor}
-    }
-        )
+        }
+    )
         .then(docs => {
             console.log(docs);
             return res.json(docs);
@@ -120,6 +123,7 @@ exports.addNewEvent = (req, res) => {
         floor:  req.body.floor,
         time: time,
         eventCleaner:  req.body.eventCleaner,
+        eventCleanerName:req.body.eventCleanerName,
         status: 'Requested',
         rating: 0,
         date:  date,
@@ -139,27 +143,27 @@ exports.addNewEvent = (req, res) => {
     });
 
 
-        // var Event = new Event({
-        //     eventUser: req.body.eventUser,
-        //     sizeOfTheAppt:  req.body.sizeOfTheAppt,
-        //     floor:  req.body.floor,
-        //     time: time,
-        //     eventCleaner:  req.body.eventCleaner,
-        //     status: 'Requested',
-        //     rating: 0,
-        //     date:  date,
-        //     address:req.body.address,
-        //     cleanFloor: req.body.cleanFloor,
-        //     cleanBathroom:req.body.cleanBathroom,
-        //     cleanWindows:req.body.cleanWindows,
-        //     notesByCleaner: ''
-        // });
-        // // save model to database
-        // Event.save(function(err, Event) {
-        //     if (err) return console.error(err);
-        //     console.log(Event.eventUser + " saved to tasks collection.");
-        // });
-        // return res.json("New task: " + Event.eventUser + " saved to tasks collection and tweet posted.")
+    // var Event = new Event({
+    //     eventUser: req.body.eventUser,
+    //     sizeOfTheAppt:  req.body.sizeOfTheAppt,
+    //     floor:  req.body.floor,
+    //     time: time,
+    //     eventCleaner:  req.body.eventCleaner,
+    //     status: 'Requested',
+    //     rating: 0,
+    //     date:  date,
+    //     address:req.body.address,
+    //     cleanFloor: req.body.cleanFloor,
+    //     cleanBathroom:req.body.cleanBathroom,
+    //     cleanWindows:req.body.cleanWindows,
+    //     notesByCleaner: ''
+    // });
+    // // save model to database
+    // Event.save(function(err, Event) {
+    //     if (err) return console.error(err);
+    //     console.log(Event.eventUser + " saved to tasks collection.");
+    // });
+    // return res.json("New task: " + Event.eventUser + " saved to tasks collection and tweet posted.")
 };
 
 exports.addToStarred = (req, res) => {
@@ -337,9 +341,7 @@ exports.updateUser = (req, res) => {
         });
     });
 };
-//
-//
-//
+
 exports.getUserByEmail = (req, res) => {
 
     let { email = null } = req.body;
@@ -368,7 +370,45 @@ exports.getCleanerByEmail = (req, res) => {
         });
 };
 
+exports.editEventByCleaner = (req, res) => {
+    let { id = null } = req.body;
+    let {email = null} = req.body
+    let {newStatus = null} = req.body
 
+    let uId = mongoose.Types.ObjectId(id);
+
+    Event.findOne({ _id: { $eq: uId } }, function(err, myEvent) {
+        if (err || !myEvent) {
+            if (res.headersSent) return;
+            else return res.json("ERR");
+        }
+
+        if (myEvent.eventCleaner === email) {
+            myEvent.status = newStatus
+
+
+            myEvent.save(function (err) {
+                if (err) {
+                    if (res.headersSent) return;
+                    else  return res.json(`ERROR! saving task failed ${err}`);
+                } else {
+                    for (let user in server.connectedUsers) {
+                        // console.log(server.connectedUsers[user])
+                        server.connectedUsers[user].emit('changedStatus', myEvent._id)
+                    }
+
+                    if (res.headersSent) return;
+                    else  return res.json(`Update Successful`);
+                }
+
+            });
+
+
+        }
+    })
+
+
+}
 //
 //
 exports.deleteEvent = (req, res) => {

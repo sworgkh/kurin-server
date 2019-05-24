@@ -4,13 +4,34 @@ const cleanCtl = require("../controllers/clean.ctl");
 const passport = require('passport');
 const session = require('express-session')
 const MongoStore = require('connect-mongo')(session);
+const socketio = require('socket.io');
 const dbConnection= require('./db.js')
+const http = require('http')
+exports.connectedUsers = []
 //const passportInit = require('./security/passport.init')
 //const gardenCtl = require('./controllers/garden.ctl');
-const app = express();
+// const app = express();
 const port = process.env.PORT || 3001;
 
-var server = require('http').createServer(app);
+// var server = require('http').createServer(app)
+
+var app = express();
+var server = http.Server(app);
+var websocket = socketio(server);
+// server.listen(port, () => console.log('listening on *:3000'));
+
+
+// The event will be called when a client is connected.
+websocket.on('connection', (socket) => {
+    console.log('A client just joined on', socket.id);
+    this.connectedUsers.push(socket)
+
+    // this.connectedUsers[0].broadcast.emit('message','BLAAA')
+});
+
+
+
+
 
 app.set('port', port);
 app.use(express.json());
@@ -39,6 +60,7 @@ app.post('/addToStarred', cleanCtl.addToStarred);
 app.post('/removeFromStarred', cleanCtl.removeFromStarred);
 app.post('/deleteEvent', cleanCtl.deleteEvent);
 app.post('/addNewEvent', cleanCtl.addNewEvent);
+app.post('/editEventByCleaner',cleanCtl.editEventByCleaner)
 // app.get('/findTaskById/:id', gardenCtl.findTaskById);                           //id string must be sent id=""
 // app.get('/findAvailableTasks/:score', gardenCtl.findAvailableTasks);            //expects integer
 // app.post('/addNewTask', gardenCtl.addNewTask);                                  //json must be sent with all new task data
