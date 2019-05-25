@@ -409,6 +409,48 @@ exports.editEventByCleaner = (req, res) => {
 
 
 }
+
+exports.addNotes = (req, res) => {
+    let { id = null } = req.body;
+    let {email = null} = req.body
+    let {notes = null} = req.body
+
+    let uId = mongoose.Types.ObjectId(id);
+
+    Event.findOne({ _id: { $eq: uId } }, function(err, myEvent) {
+        if (err || !myEvent) {
+            if (res.headersSent) return;
+            else return res.json("ERR");
+        }
+
+        if (myEvent.eventCleaner === email) {
+            myEvent.notesByCleaner = notes
+
+
+            myEvent.save(function (err) {
+                if (err) {
+                    if (res.headersSent) return;
+                    else  return res.json(`ERROR! saving task failed ${err}`);
+                } else {
+                    for (let user in server.connectedUsers) {
+                        // console.log(server.connectedUsers[user])
+                        server.connectedUsers[user].emit('changedStatus', myEvent._id)
+                    }
+
+                    if (res.headersSent) return;
+                    else  return res.json(`Update Successful`);
+                }
+
+            });
+
+
+        }
+    })
+
+
+}
+
+
 //
 //
 exports.deleteEvent = (req, res) => {

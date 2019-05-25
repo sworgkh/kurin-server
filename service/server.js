@@ -61,7 +61,7 @@ app.post('/removeFromStarred', cleanCtl.removeFromStarred);
 app.post('/deleteEvent', cleanCtl.deleteEvent);
 app.post('/addNewEvent', cleanCtl.addNewEvent);
 app.post('/editEventByCleaner',cleanCtl.editEventByCleaner)
-// app.get('/findTaskById/:id', gardenCtl.findTaskById);                           //id string must be sent id=""
+app.post('/addNotes', cleanCtl.addNotes);
 // app.get('/findAvailableTasks/:score', gardenCtl.findAvailableTasks);            //expects integer
 // app.post('/addNewTask', gardenCtl.addNewTask);                                  //json must be sent with all new task data
 // app.post('/updateTask', gardenCtl.updateTask);                                  //json must be sent with an update data  id="" must
