@@ -12,7 +12,9 @@ const cleaner_schema = new mongoose.Schema({
     cleaner: Boolean,
     windows:Boolean,
     bathroom: Boolean,
-    floor:Boolean
+    floor:Boolean,
+    totalRating:Number,
+    numberOfSubmittedCleans:Number,
 });
 
 //model

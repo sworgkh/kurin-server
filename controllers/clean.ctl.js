@@ -81,19 +81,6 @@ exports.getAllCleaners = (req, res) => {
         });
 };
 
-// exports.findUserByEmail = (req, res) => {
-//     let { email = null } = req.body;
-//     User.find({ user_email: { $eq: email } })
-//         .then(docs => {
-//             console.log(docs);
-//             return res.json(docs);
-//         })
-//         .catch(err => {
-//             console.log(`query error: ${err}`);
-//             return res.json(`query error: ${err}`);
-//
-//         });
-// };
 
 exports.findEventsByUserEmail = (req, res) => {
     let {email = null} = req.body;
@@ -456,6 +443,61 @@ exports.addNotes = (req, res) => {
 
 }
 
+exports.submitRating = (req, res) => {
+    let { id = null } = req.body;
+    let {rating = null} = req.body
+
+    let uId = mongoose.Types.ObjectId(id);
+
+    Event.findOne({ _id: { $eq: uId } }, function(err, myEvent) {
+        if (err || !myEvent) {
+            if (res.headersSent) return;
+            else return res.json("ERR");
+        }
+
+            myEvent.rating = rating
+            myEvent.save(function (err) {
+                if (err) {
+                    if (res.headersSent) return;
+                    else  return res.json(`ERROR! saving task failed ${err}`);
+                } else {
+                    Cleaner.findOne({ email: { $eq: email } }, function(err, cleaner) {
+                        if (err || !cleaner) {
+                            if (res.headersSent) return;
+                            else return res.json("ERR");
+                        }
+                        cleaner.totalRating = cleaner.totalRating + rating
+                        cleaner.numberOfSubmittedCleans =+ 1
+                        cleaner.rating = cleaner.totalRating /cleaner.numberOfSubmittedCleans
+                        cleaner.save(function (err) {
+                            if (err) {
+                                if (res.headersSent) return;
+                                else  return res.json(`ERROR! saving task failed ${err}`);
+                            } else {
+
+                                for (let user in server.connectedUsers) {
+                                    // console.log(server.connectedUsers[user])
+                                    server.connectedUsers[user].emit('changedStatus', myEvent._id)
+                                }
+
+                                if (res.headersSent) return;
+                                else  return res.json(`Update Successful`);
+                            }
+                        });
+                    })
+                    // for (let user in server.connectedUsers) {
+                    //     // console.log(server.connectedUsers[user])
+                    //     server.connectedUsers[user].emit('changedStatus', myEvent._id)
+                    // }
+
+                    if (res.headersSent) return;
+                    else  return res.json(`Update Successful`);
+                }
+            });
+    })
+
+}
+
 
 exports.enterQueue = (req, res) => {
     let {floor = null } = req.body;
@@ -497,10 +539,6 @@ exports.enterQueue = (req, res) => {
 
 }
 
-
-
-//
-//
 exports.deleteEvent = (req, res) => {
     console.log(req.body)
     let { id = null } = req.body;
