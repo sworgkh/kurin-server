@@ -451,6 +451,48 @@ exports.addNotes = (req, res) => {
 }
 
 
+exports.enterQueue = (req, res) => {
+    let {floor = null } = req.body;
+    let {bathroom = null} = req.body
+    let {windows = null} = req.body
+    let {available = null} = req.body
+    let {email = null} = req.body
+    console.log(req.body)
+    Cleaner.findOne({ email: { $eq: email } }, function(err, cleaner) {
+        if (err || !cleaner) {
+            if (res.headersSent) return;
+            else return res.json("ERR");
+        }
+        cleaner.floor = floor
+        cleaner.bathroom = bathroom
+        cleaner.windows = windows
+        cleaner.available = available
+
+        console.log(cleaner)
+            cleaner.save(function (err) {
+                if (err) {
+                    if (res.headersSent) return;
+                    else  return res.json(`ERROR! saving task failed ${err}`);
+                } else {
+                    console.log("Saved")
+                    // for (let user in server.connectedUsers) {
+                    //     // console.log(server.connectedUsers[user])
+                    //     server.connectedUsers[user].emit('changedStatus', cleaner._id)
+                    // }
+                    if (res.headersSent) return;
+                    else  return res.json(`Update Successful`);
+                }
+            });
+
+
+
+    })
+
+
+}
+
+
+
 //
 //
 exports.deleteEvent = (req, res) => {

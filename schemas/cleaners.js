@@ -10,6 +10,9 @@ const cleaner_schema = new mongoose.Schema({
     available: Boolean,
     about:String,
     cleaner: Boolean,
+    windows:Boolean,
+    bathroom: Boolean,
+    floor:Boolean
 });
 
 //model
