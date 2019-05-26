@@ -64,7 +64,7 @@ app.post('/editEventByCleaner',cleanCtl.editEventByCleaner)
 app.post('/addNotes', cleanCtl.addNotes);
 
 app.post('/enterQueue',cleanCtl.enterQueue)
-
+app.post('/submitRating',cleanCtl.submitRating)
 // app.get('/findAvailableTasks/:score', gardenCtl.findAvailableTasks);            //expects integer
 // app.post('/addNewTask', gardenCtl.addNewTask);                                  //json must be sent with all new task data
 // app.post('/updateTask', gardenCtl.updateTask);                                  //json must be sent with an update data  id="" must
