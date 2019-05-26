@@ -16,6 +16,12 @@ function sha1( data ) {
     return generator.digest('hex')
 }
 
+function sha1( data ) {
+    let generator = crypto.createHash('sha1');
+    generator.update( data )
+    return generator.digest('hex')
+}
+
 
 exports.login = (req,res) => {
     let {email = null} = req.body;
