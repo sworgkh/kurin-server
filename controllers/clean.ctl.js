@@ -26,23 +26,39 @@ function sha1( data ) {
 exports.login = (req,res) => {
     let {email = null} = req.body;
     let {password = null} = req.body;
-    User.find({
-            email: {$eq: email},
-            password: {$eq: password},
+    let passHash = ''
+
+
+    User.findOne({email: {$eq: email}}, function (err, user) {
+        if(!user)
+            return
+
+        if (user.password.toString() === password){
+            passHash =  sha1(user.password.toString())
+            if (res.headersSent) return;
+                return res.json({userToken: passHash})
         }
-    )
-        .then(docs => {
-            let i = JSON.stringify(docs[0])
-            // if(docs[0]._doc.password.toString())
-            // console.log(docs[0]._doc.password)
-            let passHash = sha1(docs[0]._doc.password.toString())
-            return res.json({userToken: passHash})
-            // return res.json({userToken:passHash.toString()});
-        })
-        .catch(err => {
-            console.log(`query error: ${err}`);
-            return res.json(`query error: ${err}`);
-        });
+
+
+    })
+
+    Cleaner.findOne({email: {$eq: email}}, function (err, cleaner) {
+        if(!cleaner)
+            return
+        if(cleaner) {
+            if (cleaner._doc.password.toString() === password) {
+                if (res.headersSent) return;
+                passHash = sha1(cleaner._doc.password.toString())
+                return res.json({userToken: passHash})
+
+            }
+
+        }
+        if (res.headersSent) return;
+        // return res.json({userToken: passHash})
+    })
+
+    // return res.json({userToken: passHash})
 }
 
 exports.findMatchingCleaners = (req,res) => {
