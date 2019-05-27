@@ -26,6 +26,7 @@ function sha1( data ) {
 exports.login = (req,res) => {
     let {email = null} = req.body;
     let {password = null} = req.body;
+    let passHash = ''
     User.find({
             email: {$eq: email},
             password: {$eq: password},
@@ -33,13 +34,31 @@ exports.login = (req,res) => {
     )
         .then(docs => {
             let i = JSON.stringify(docs[0])
-            let passHash = sha1(docs[0]._doc.password.toString())
-            return res.json({userToken: passHash})
+            passHash = sha1(docs[0]._doc.password.toString())
+            // return res.json({userToken: passHash})
         })
         .catch(err => {
             console.log(`query error: ${err}`);
             return res.json(`query error: ${err}`);
         });
+
+    Cleaner.find({
+            email: {$eq: email},
+            password: {$eq: password},
+        }
+    )
+        .then(docs => {
+            let i = JSON.stringify(docs[0])
+            passHash = sha1(docs[0]._doc.password.toString())
+            // return res.json({userToken: passHash})
+        })
+        .catch(err => {
+            console.log(`query error: ${err}`);
+            return res.json(`query error: ${err}`);
+        });
+
+    return res.json({userToken: passHash})
+
 }
 
 exports.findMatchingCleaners = (req,res) => {
