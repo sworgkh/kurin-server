@@ -183,24 +183,45 @@ exports.register = (req, res) => {
     let {avatar = null} = req.body;
 
     if(cleaner){
+        let newUser = {
+            name: name,
+            rating: 0,
+            email: email,
+            address:address,
+            avatar:avatar,
+            events: [],
+            available: false,
+            about:about,
+            cleaner: cleaner,
+            windows:false,
+            bathroom: false,
+            floor:false,
+            totalRating:0,
+            numberOfSubmittedCleans:0,
+        }
+        Cleaner.create(newUser, (error, user) => {
+            if (error) {
+                return res.json(error);
+            } else {
+                return res.json('Created ' + user.email);
+            }
+        });
+
 
     }
     else {
-
-
         let newUser = {
             name: name,
-            email: email,
-            password: password,
-            address: address,
-            cleaner: cleaner,
-            rating: 0,
             description: about,
+            password: password,
+            rating: 0,
+            email: email,
+            address: address,
+            avatar: avatar,
             favorite_cleaners: [],
             events: [],
-            avatar: avatar
+            cleaner: cleaner,
         }
-
         User.create(newUser, (error, user) => {
             if (error) {
                 return res.json(error);
@@ -230,7 +251,7 @@ exports.register = (req, res) => {
     //     if (err) return console.error(err);
     //     console.log(Event.eventUser + " saved to tasks collection.");
     // });
-    // return res.json("New task: " + Event.eventUser + " saved to tasks collection and tweet posted.")
+    return res.json("New task: " + Event.eventUser + " saved to tasks collection and tweet posted.")
 };
 
 
