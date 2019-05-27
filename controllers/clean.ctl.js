@@ -461,7 +461,8 @@ exports.submitRating = (req, res) => {
                     if (res.headersSent) return;
                     else  return res.json(`ERROR! saving task failed ${err}`);
                 } else {
-                    Cleaner.findOne({ email: { $eq: email } }, function(err, cleaner) {
+
+                    Cleaner.findOne({ email: { $eq: myEvent.eventCleaner } }, function(err, cleaner) {
                         if (err || !cleaner) {
                             if (res.headersSent) return;
                             else return res.json("ERR");
