@@ -468,7 +468,7 @@ exports.submitRating = (req, res) => {
                             else return res.json("ERR");
                         }
                         cleaner.totalRating = cleaner.totalRating + rating
-                        cleaner.numberOfSubmittedCleans =+ 1
+                        cleaner.numberOfSubmittedCleans = cleaner.numberOfSubmittedCleans + 1
                         cleaner.rating = cleaner.totalRating /cleaner.numberOfSubmittedCleans
                         cleaner.save(function (err) {
                             if (err) {
