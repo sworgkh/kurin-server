@@ -2,6 +2,7 @@ let mongoose = require('mongoose');
 
 const cleaner_schema = new mongoose.Schema({
     name: { type: String, index:1,required: true},
+    password:String,
     rating: Number,
     email: String,
     address:String,

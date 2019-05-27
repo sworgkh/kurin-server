@@ -201,6 +201,7 @@ exports.register = (req, res) => {
     if(cleaner){
         let newUser = {
             name: name,
+            password:password,
             rating: 0,
             email: email,
             address:address,
