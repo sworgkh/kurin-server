@@ -172,6 +172,70 @@ exports.addNewEvent = (req, res) => {
     // return res.json("New task: " + Event.eventUser + " saved to tasks collection and tweet posted.")
 };
 
+
+exports.register = (req, res) => {
+    let {name = null} = req.body;
+    let {email = null} = req.body;
+    let {password = null} = req.body;
+    let {address = null} = req.body;
+    let {cleaner = null} = req.body;
+    let {about = null} = req.body;
+    let {avatar = null} = req.body;
+
+    if(cleaner){
+
+    }
+    else {
+
+
+        let newUser = {
+            name: name,
+            email: email,
+            password: password,
+            address: address,
+            cleaner: cleaner,
+            rating: 0,
+            description: about,
+            favorite_cleaners: [],
+            events: [],
+            avatar: avatar
+        }
+
+        User.create(newUser, (error, user) => {
+            if (error) {
+                return res.json(error);
+            } else {
+                return res.json('Created ' + user.email);
+            }
+        });
+    }
+
+    // var Event = new Event({
+    //     eventUser: req.body.eventUser,
+    //     sizeOfTheAppt:  req.body.sizeOfTheAppt,
+    //     floor:  req.body.floor,
+    //     time: time,
+    //     eventCleaner:  req.body.eventCleaner,
+    //     status: 'Requested',
+    //     rating: 0,
+    //     date:  date,
+    //     address:req.body.address,
+    //     cleanFloor: req.body.cleanFloor,
+    //     cleanBathroom:req.body.cleanBathroom,
+    //     cleanWindows:req.body.cleanWindows,
+    //     notesByCleaner: ''
+    // });
+    // // save model to database
+    // Event.save(function(err, Event) {
+    //     if (err) return console.error(err);
+    //     console.log(Event.eventUser + " saved to tasks collection.");
+    // });
+    // return res.json("New task: " + Event.eventUser + " saved to tasks collection and tweet posted.")
+};
+
+
+
+
 exports.addToStarred = (req, res) => {
     let {userEmail = null} = req.body;
     let {cleanerEmail = null} = req.body;
