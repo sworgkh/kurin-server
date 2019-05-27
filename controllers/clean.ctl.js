@@ -33,7 +33,7 @@ exports.login = (req,res) => {
         }
     )
         .then(docs => {
-            if(docs === [] || !docs){
+            if(docs.length === 0 || !docs){
                 Cleaner.find({
                         email: {$eq: email},
                         password: {$eq: password},
@@ -42,21 +42,25 @@ exports.login = (req,res) => {
                     .then(docs => {
                         let i = JSON.stringify(docs[0])
                         passHash = sha1(docs[0]._doc.password.toString())
-                        // return res.json({userToken: passHash})
+                        return res.json({userToken: passHash})
                     })
                     .catch(err => {
                         console.log(`query error: ${err}`);
-                        return res.json(`query error: ${err}`);
+                        if (res.headersSent) return;
+                            return res.json(`query error: ${err}`);
                     });
-                return res.json({userToken: passHash})
+                if (res.headersSent) return;
+                    return res.json({userToken: passHash})
             }
             let i = JSON.stringify(docs[0])
             passHash = sha1(docs[0]._doc.password.toString())
-            return res.json({userToken: passHash})
+            if (res.headersSent) return;
+                return res.json({userToken: passHash})
         })
         .catch(err => {
             console.log(`query error: ${err}`);
-            return res.json(`query error: ${err}`);
+            if (res.headersSent) return;
+                return res.json(`query error: ${err}`);
         });
 
 
