@@ -678,7 +678,11 @@ exports.deleteEvent = (req, res) => {
             res.json(console.log(`query error: ${err}`));
         }
         else {
-            res.json("Deleted task with id: " + id);
+            for (let user in server.connectedUsers) {
+                // console.log(server.connectedUsers[user])
+                server.connectedUsers[user].emit('changedStatus', myEvent._id)
+            }
+            res.json("Deleted event with id: " + id);
         }
     });
 };
