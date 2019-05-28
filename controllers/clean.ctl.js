@@ -39,10 +39,15 @@ exports.login = (req,res) => {
                         password: {$eq: password},
                     }
                 ).then(docs => {
+                    if(docs.length === 0 || !docs){
+                        return res.json({error:'No user'})
+                    }
+                    else {
                         passHash = sha1(docs[0].password.toString() + docs[0].email.toString())
                         if (res.headersSent) return;
                         return res.json({userToken: passHash})
-                    })
+                    }
+                })
                     .catch(err => {
                         console.log(`query error: ${err}`);
                         if (res.headersSent) return;
