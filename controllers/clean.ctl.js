@@ -206,7 +206,6 @@ exports.register = (req, res) => {
     let {cleaner = null} = req.body;
     let {about = null} = req.body;
     let {avatar = null} = req.body;
-
     if(cleaner){
         let newUser = {
             name: name,
@@ -229,7 +228,7 @@ exports.register = (req, res) => {
             if (error) {
                 return res.json(error);
             } else {
-                return res.json('Created ' + user.email);
+                return res.json({email:user.email});
             }
         });
 
@@ -252,7 +251,7 @@ exports.register = (req, res) => {
             if (error) {
                 return res.json(error);
             } else {
-                return res.json('Created ' + user.email);
+                return res.json({email:user.email});
             }
         });
     }
@@ -277,7 +276,7 @@ exports.register = (req, res) => {
     //     if (err) return console.error(err);
     //     console.log(Event.eventUser + " saved to tasks collection.");
     // });
-    return res.json("New task: " + Event.eventUser + " saved to tasks collection and tweet posted.")
+    // return res.json("user created")
 };
 
 
