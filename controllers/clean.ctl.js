@@ -680,7 +680,7 @@ exports.deleteEvent = (req, res) => {
         else {
             for (let user in server.connectedUsers) {
                 // console.log(server.connectedUsers[user])
-                server.connectedUsers[user].emit('changedStatus', myEvent._id)
+                server.connectedUsers[user].emit('changedStatus',null)
             }
             res.json("Deleted event with id: " + id);
         }
