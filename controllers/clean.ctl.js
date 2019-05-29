@@ -299,9 +299,18 @@ exports.addToStarred = (req, res) => {
 
         favorite_cleaners.push(cleanerEmail);
         user.favorite_cleaners = favorite_cleaners
+
+
         user.save(function (err) {
             if(err) {
                 console.error('ERROR!');
+            }
+            else{
+                for (let user in server.connectedUsers) {
+                    // console.log(server.connectedUsers[user])
+                    server.connectedUsers[user].emit('changedStatus', user._id)
+                }
+
             }
         });
 
@@ -336,12 +345,18 @@ exports.removeFromStarred = (req, res) => {
         if (favorite_cleaners.includes(cleanerEmail)) {
             favorite_cleaners.remove(cleanerEmail);
         }
+
         user.favorite_cleaners = favorite_cleaners
         user.save(function (err) {
             if(err) {
                 console.error('ERROR!');
             }
         });
+        for (let user in server.connectedUsers) {
+                // console.log(server.connectedUsers[user])
+                server.connectedUsers[user].emit('changedStatus', user._id)
+        }
+
         if (res.headersSent) return;
         else return res.json({success: true});
     });
