@@ -158,6 +158,7 @@ exports.addNewEvent = (req, res) => {
         status: 'Requested',
         rating: 0,
         date:  date,
+        dayTimeOfEvent: req.body.dayTimeOfEvent,
         address:req.body.address,
         cleanFloor: req.body.cleanFloor,
         cleanBathroom:req.body.cleanBathroom,
