@@ -26,23 +26,48 @@ function sha1( data ) {
 exports.login = (req,res) => {
     let {email = null} = req.body;
     let {password = null} = req.body;
+    let passHash = ''
     User.find({
             email: {$eq: email},
             password: {$eq: password},
         }
     )
         .then(docs => {
-            let i = JSON.stringify(docs[0])
-            // if(docs[0]._doc.password.toString())
-            // console.log(docs[0]._doc.password)
-            let passHash = sha1(docs[0]._doc.password.toString())
-            return res.json({userToken: passHash})
-            // return res.json({userToken:passHash.toString()});
+            if(docs.length === 0 || !docs){
+                Cleaner.find({
+                        email: {$eq: email},
+                        password: {$eq: password},
+                    }
+                ).then(docs => {
+                    if(docs.length === 0 || !docs){
+                        return res.json({error:'No user'})
+                    }
+                    else {
+                        passHash = sha1(docs[0].password.toString() + docs[0].email.toString())
+                        if (res.headersSent) return;
+                        return res.json({userToken: passHash})
+                    }
+                })
+                    .catch(err => {
+                        console.log(`query error: ${err}`);
+                        if (res.headersSent) return;
+                            return res.json(`query error: ${err}`);
+                    });
+            }
+            else {
+                passHash = sha1(docs[0].password.toString() + docs[0].email.toString())
+                if (res.headersSent) return;
+                return res.json({userToken: passHash})
+            }
         })
         .catch(err => {
             console.log(`query error: ${err}`);
+            if (res.headersSent) return;
             return res.json(`query error: ${err}`);
         });
+
+
+
 }
 
 exports.findMatchingCleaners = (req,res) => {
@@ -133,6 +158,7 @@ exports.addNewEvent = (req, res) => {
         status: 'Requested',
         rating: 0,
         date:  date,
+        dayTimeOfEvent: req.body.dayTimeOfEvent,
         address:req.body.address,
         cleanFloor: req.body.cleanFloor,
         cleanBathroom:req.body.cleanBathroom,
@@ -172,6 +198,91 @@ exports.addNewEvent = (req, res) => {
     // return res.json("New task: " + Event.eventUser + " saved to tasks collection and tweet posted.")
 };
 
+
+exports.register = (req, res) => {
+    let {name = null} = req.body;
+    let {email = null} = req.body;
+    let {password = null} = req.body;
+    let {address = null} = req.body;
+    let {cleaner = null} = req.body;
+    let {about = null} = req.body;
+    let {avatar = null} = req.body;
+    if(cleaner){
+        let newUser = {
+            name: name,
+            password:password,
+            rating: 0,
+            email: email,
+            address:address,
+            avatar:avatar,
+            events: [],
+            available: false,
+            about:about,
+            cleaner: cleaner,
+            windows:false,
+            bathroom: false,
+            floor:false,
+            totalRating:0,
+            numberOfSubmittedCleans:0,
+        }
+        Cleaner.create(newUser, (error, user) => {
+            if (error) {
+                return res.json(error);
+            } else {
+                return res.json({email:user.email});
+            }
+        });
+
+
+    }
+    else {
+        let newUser = {
+            name: name,
+            description: about,
+            password: password,
+            rating: 0,
+            email: email,
+            address: address,
+            avatar: avatar,
+            favorite_cleaners: [],
+            events: [],
+            cleaner: cleaner,
+        }
+        User.create(newUser, (error, user) => {
+            if (error) {
+                return res.json(error);
+            } else {
+                return res.json({email:user.email});
+            }
+        });
+    }
+
+    // var Event = new Event({
+    //     eventUser: req.body.eventUser,
+    //     sizeOfTheAppt:  req.body.sizeOfTheAppt,
+    //     floor:  req.body.floor,
+    //     time: time,
+    //     eventCleaner:  req.body.eventCleaner,
+    //     status: 'Requested',
+    //     rating: 0,
+    //     date:  date,
+    //     address:req.body.address,
+    //     cleanFloor: req.body.cleanFloor,
+    //     cleanBathroom:req.body.cleanBathroom,
+    //     cleanWindows:req.body.cleanWindows,
+    //     notesByCleaner: ''
+    // });
+    // // save model to database
+    // Event.save(function(err, Event) {
+    //     if (err) return console.error(err);
+    //     console.log(Event.eventUser + " saved to tasks collection.");
+    // });
+    // return res.json("user created")
+};
+
+
+
+
 exports.addToStarred = (req, res) => {
     let {userEmail = null} = req.body;
     let {cleanerEmail = null} = req.body;
@@ -189,9 +300,18 @@ exports.addToStarred = (req, res) => {
 
         favorite_cleaners.push(cleanerEmail);
         user.favorite_cleaners = favorite_cleaners
+
+
         user.save(function (err) {
             if(err) {
                 console.error('ERROR!');
+            }
+            else{
+                for (let user in server.connectedUsers) {
+                    // console.log(server.connectedUsers[user])
+                    server.connectedUsers[user].emit('changedStatus', user._id)
+                }
+
             }
         });
 
@@ -226,12 +346,18 @@ exports.removeFromStarred = (req, res) => {
         if (favorite_cleaners.includes(cleanerEmail)) {
             favorite_cleaners.remove(cleanerEmail);
         }
+
         user.favorite_cleaners = favorite_cleaners
         user.save(function (err) {
             if(err) {
                 console.error('ERROR!');
             }
         });
+        for (let user in server.connectedUsers) {
+                // console.log(server.connectedUsers[user])
+                server.connectedUsers[user].emit('changedStatus', user._id)
+        }
+
         if (res.headersSent) return;
         else return res.json({success: true});
     });
@@ -376,6 +502,64 @@ exports.getCleanerByEmail = (req, res) => {
         });
 };
 
+exports.submitRating = (req, res) => {
+    let { id = null } = req.body;
+    let {rating = null} = req.body
+
+    let uId = mongoose.Types.ObjectId(id);
+
+    Event.findOne({ _id: { $eq: uId } }, function(err, myEvent) {
+        if (err || !myEvent) {
+            if (res.headersSent) return;
+            else return res.json("ERR");
+        }
+
+        myEvent.rating = rating
+        myEvent.save(function (err) {
+            if (err) {
+                if (res.headersSent) return;
+                else  return res.json(`ERROR! saving task failed ${err}`);
+            } else {
+
+                Cleaner.findOne({ email: { $eq: myEvent.eventCleaner } }, function(err, cleaner) {
+                    if (err || !cleaner) {
+                        if (res.headersSent) return;
+                        else return res.json("ERR");
+                    }
+                    cleaner.totalRating = cleaner.totalRating + rating
+                    cleaner.numberOfSubmittedCleans = cleaner.numberOfSubmittedCleans + 1
+                    cleaner.rating = cleaner.totalRating /cleaner.numberOfSubmittedCleans
+                    cleaner.save(function (err) {
+                        if (err) {
+                            if (res.headersSent) return;
+                            else  return res.json(`ERROR! saving task failed ${err}`);
+                        } else {
+
+                            for (let user in server.connectedUsers) {
+                                // console.log(server.connectedUsers[user])
+                                server.connectedUsers[user].emit('changedStatus', myEvent._id)
+                            }
+
+                            if (res.headersSent) return;
+                            else  return res.json(`Update Successful`);
+                        }
+                    });
+                })
+                // for (let user in server.connectedUsers) {
+                //     // console.log(server.connectedUsers[user])
+                //     server.connectedUsers[user].emit('changedStatus', myEvent._id)
+                // }
+
+                if (res.headersSent) return;
+                else  return res.json(`Update Successful`);
+            }
+        });
+    })
+
+}
+
+
+
 exports.editEventByCleaner = (req, res) => {
     let { id = null } = req.body;
     let {email = null} = req.body
@@ -510,7 +694,11 @@ exports.deleteEvent = (req, res) => {
             res.json(console.log(`query error: ${err}`));
         }
         else {
-            res.json("Deleted task with id: " + id);
+            for (let user in server.connectedUsers) {
+                // console.log(server.connectedUsers[user])
+                server.connectedUsers[user].emit('changedStatus',null)
+            }
+            res.json("Deleted event with id: " + id);
         }
     });
 };

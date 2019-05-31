@@ -15,6 +15,7 @@ const event_schema = new mongoose.Schema({
     cleanFloor:Boolean,
     cleanBathroom:Boolean,
     cleanWindows:Boolean,
+    dayTimeOfEvent:String
 });
 
 //model
